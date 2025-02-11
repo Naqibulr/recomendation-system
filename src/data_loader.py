@@ -78,27 +78,20 @@ class MINDDataLoader:
         return df_behaviors, df_news
 
     def load_embeddings(self, split="train"):
-        # Load news embeddings
         if split == "train":
-            df_embeddings_entity = pd.read_csv(
-                self.dataset_path_train / "entity_embedding.vec", sep=" ", header=None
-            )
-            df_embeddings_relation = pd.read_csv(
-                self.dataset_path_train / "relation_embedding.vec", sep=" ", header=None
-            )
+            entity_file = self.dataset_path_train / "entity_embedding.vec"
+            relation_file = self.dataset_path_train / "relation_embedding.vec"
         elif split == "validation":
-            df_embeddings_entity = pd.read_csv(
-                self.dataset_path_validation / "entity_embedding.vec",
-                sep=" ",
-                header=None,
-            )
-            df_embeddings_relation = pd.read_csv(
-                self.dataset_path_validation / "relation_embedding.vec",
-                sep=" ",
-                header=None,
-            )
-
+            entity_file = self.dataset_path_validation / "entity_embedding.vec"
+            relation_file = self.dataset_path_validation / "relation_embedding.vec"
         else:
             raise ValueError("Split must be either 'train' or 'validation'")
+
+        df_embeddings_entity = np.fromfile(
+            str(entity_file), dtype=np.float32
+        )  # Replace float32 if needed
+        df_embeddings_relation = np.fromfile(
+            str(relation_file), dtype=np.float32
+        )  # Replace float32 if needed
 
         return df_embeddings_entity, df_embeddings_relation
