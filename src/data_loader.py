@@ -3,31 +3,102 @@ import numpy as np
 from pathlib import Path
 import zipfile
 
-class MINDDataLoader:
-    def __init__(self, dataset_path="../data"):
-        self.dataset_path = Path(dataset_path)
-        self.unzip_files()
 
-    def unzip_files(self, file_name="MINDlarge_train.zip"):
+class MINDDataLoader:
+    def __init__(self, dataset_path="data"):
+        self.dataset_path = Path(dataset_path)
+        self.dataset_path_train = self.dataset_path / "train"
+        self.dataset_path_validation = self.dataset_path / "validation"
+
+    def unzip_files(
+        self, file_name="MINDsmall_train.zip", split: str = "train", clean_up=False
+    ):
         # Unzip files if they are zipped
-        zip_path = self.dataset_path.parent / file_name
+        zip_path = self.dataset_path / file_name
+        destination_path = self.dataset_path / split
+
+        # if folder is already unzipped and the folder is not empty, return
+        if destination_path.exists() and len(list(destination_path.iterdir())) > 0:
+            print(
+                f"The {split} folder already exists and is not empty. Skipping...",
+                "\n",
+                "If you want to re-unzip the files, delete the folder and try again.",
+            )
+
+            return
+        print("Unzipping files...")
+        print(f"Zip path: {zip_path}")
         if zip_path.exists():
-            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                zip_ref.extractall(self.dataset_path.parent)
+            with zipfile.ZipFile(zip_path, "r") as zip_ref:
+                zip_ref.extractall(destination_path)
+            print("Files unzipped")
+            if clean_up:
+                zip_path.unlink()
+                print("Zip file deleted")
+        else:
+            print("Cannot find the specified zip file")
 
     def load_interactions(self, split="train"):
         # Load user-item interactions (e.g., clicks, reads)
         if split == "train":
-            df = pd.read_csv(self.dataset_path / "train_impressions.csv")
+            df_behaviors = pd.read_csv(
+                self.dataset_path_train / "behaviors.tsv", sep="\t", header=None
+            )
+            df_news = pd.read_csv(
+                self.dataset_path_train / "news.tsv", sep="\t", header=None
+            )
+
         elif split == "validation":
-            df = pd.read_csv(self.dataset_path / "validation_impressions.csv")
+            df_behaviors = pd.read_csv(
+                self.dataset_path_validation / "behaviors.tsv", sep="\t", header=None
+            )
+            df_news = pd.read_csv(
+                self.dataset_path_validation / "news.tsv", sep="\t", header=None
+            )
         else:
             raise ValueError("Split must be either 'train' or 'validation'")
-        return df
 
-    def load_item_features(self):
-        # Load article metadata/text embeddings
-        df = pd.read_csv(self.dataset_path / "news_articles.csv")
-        embeddings = np.load(self.dataset_path / "text_embeddings.npy")
-        df["embedding"] = list(embeddings)  # Attach embeddings to items
-        return df
+        df_behaviors.columns = [
+            "impression_id",
+            "user_id",
+            "time",
+            "history",
+            "impressions",
+        ]
+        df_news.columns = [
+            "news_id",
+            "category",
+            "subcategory",
+            "title",
+            "abstract",
+            "url",
+            "title_entities",
+            "abstract_entities",
+        ]
+        return df_behaviors, df_news
+
+    def load_embeddings(self, split="train"):
+        # Load news embeddings
+        if split == "train":
+            df_embeddings_entity = pd.read_csv(
+                self.dataset_path_train / "entity_embedding.vec", sep=" ", header=None
+            )
+            df_embeddings_relation = pd.read_csv(
+                self.dataset_path_train / "relation_embedding.vec", sep=" ", header=None
+            )
+        elif split == "validation":
+            df_embeddings_entity = pd.read_csv(
+                self.dataset_path_validation / "entity_embedding.vec",
+                sep=" ",
+                header=None,
+            )
+            df_embeddings_relation = pd.read_csv(
+                self.dataset_path_validation / "relation_embedding.vec",
+                sep=" ",
+                header=None,
+            )
+
+        else:
+            raise ValueError("Split must be either 'train' or 'validation'")
+
+        return df_embeddings_entity, df_embeddings_relation
