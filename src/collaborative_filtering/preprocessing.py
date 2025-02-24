@@ -2,8 +2,12 @@
 
 import pandas as pd
 
+
 class CollaborativeFilteringPreprocessor:
-    def preprocess_interactions(df: pd.DataFrame) -> pd.DataFrame:
+    def __init__(self):
+        pass
+
+    def preprocess_interactions(self, df: pd.DataFrame) -> pd.DataFrame:
         df.columns = [
             "impression_id",
             "user_id",
@@ -20,7 +24,6 @@ class CollaborativeFilteringPreprocessor:
             )
         )
 
-
         # find duplicate rows
         duplicate_rows = df[df.duplicated()]
         print("Duplicate Rows except first occurrence based on all columns are :")
@@ -31,14 +34,11 @@ class CollaborativeFilteringPreprocessor:
 
         # find rows with missing values
         missing_values = df[df.isnull().any(axis=1)]
-        
+
         print("Rows with missing values:")
         print(missing_values)
 
         # drop rows with missing values
         df = df.dropna()
 
-
         return df
-
-
