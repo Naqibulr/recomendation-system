@@ -34,6 +34,8 @@ if __name__ == "__main__":
     #model = CollaborativeFilteringModel(df_behaviors_train)
     #model.fit()
 
+    """
+
     small_df = df_behaviors_train.sample(10000)  # Reduce dataset
     model = CollaborativeFilteringModel(small_df)
     model.fit()
@@ -63,3 +65,4 @@ if __name__ == "__main__":
         print(f"{metric}: {value}")
 
 
+"""
