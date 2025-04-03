@@ -42,3 +42,11 @@ class CollaborativeFilteringPreprocessor:
         df = df.dropna()
 
         return df
+
+    def print_head(self, df: pd.DataFrame, n: int = 5):
+        print(df.head(n))
+        return df.head(n)
+
+    def debug_print(self, df: pd.DataFrame):
+        print(df)
+        return df

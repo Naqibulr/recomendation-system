@@ -37,3 +37,5 @@ Thumbs.db
 *.csv
 train/
 validation/
+
+src/collaborative_filtering/*.tsv

@@ -74,16 +74,16 @@ class EvaluationMetrics:
 
     def evaluate_model(self, model, test_df, k=10):
         """Evaluate the model on test data."""
+        print("Setting up actual and predicted values for evaluation...")
         self.actual = [set(test_df[test_df["user_id"] == user]["impressions"].explode())
                        for user in test_df["user_id"].unique()]
 
-        self.predicted = [model.predict(user, top_n=k).index.tolist()
-                          if user in model.interaction_matrix.index else []
-                          for user in test_df["user_id"].unique()]
+        self.predicted = [model.predict(user, top_n=k).index.tolist(
+        ) for user in test_df["user_id"].unique()]
 
         return {
-            "HR@10": self.hit_rate_at_k(k=100),
-            "NDCG@10": self.ndcg_at_k(k=100),
-            "Precision@10": self.precision_at_k(k=100),
-            "Recall@10": self.recall_at_k(k=100),
+            f"HR@{k}": self.hit_rate_at_k(k=k),
+            f"NDCG@{k}": self.ndcg_at_k(k=k),
+            f"Precision@{k}": self.precision_at_k(k=k),
+            f"Recall@{k}": self.recall_at_k(k=k),
         }

@@ -2,7 +2,7 @@ from src.collaborative_filtering.model import CollaborativeFilteringModel
 from src.data_loader import MINDDataLoader
 from src.collaborative_filtering.preprocessing import CollaborativeFilteringPreprocessor
 from src.evaluation.metrics import EvaluationMetrics
-from src.utils import save_cosine_similarity_matrix
+from src.utils import save_cosine_similarity_matrix, save_interaction_matrix
 
 
 def main():
@@ -39,12 +39,17 @@ if __name__ == "__main__":
     model = CollaborativeFilteringModel(small_df)
     model.fit()
 
-    sample_user_id = model.interaction_matrix.index[4]  # Just an example user
+    sample_user_id = model.interaction_matrix.index[5]  # Just an example user
 
     # Get recommendations
     print(model.similarity_matrix)
-    save_cosine_similarity_matrix(model.similarity_matrix)
     recommendations = model.predict(sample_user_id)
+    print("RECOMMENDATIONS", recommendations)
+
+    save_cosine_similarity_matrix(
+        model.similarity_matrix, filename="cosine_similarity.npy")
+    save_interaction_matrix(model.interaction_matrix,
+                            file_path="interaction_matrix.pkl")
 
     evaluation = EvaluationMetrics(actual=None, predicted=None
                                    )
